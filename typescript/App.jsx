@@ -1,6 +1,7 @@
 import * as React from "react";
 
-const Context = React.createContext({});
+const CountContext = React.createContext({});
+const IncrementContext = React.createContext({});
 
 function useCounter({ initialCount = 0 } = {}) {
   const [count, setCount] = React.useState(initialCount);
@@ -9,18 +10,22 @@ function useCounter({ initialCount = 0 } = {}) {
 }
 
 const CounterProvider = ({ children, initialCount }) => {
-  const value = useCounter({ initialCount });
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  const { count, increment } = useCounter({ initialCount });
+  return (
+    <CountContext.Provider value={count}>
+      <IncrementContext.Provider value={increment}>
+        {children}
+      </IncrementContext.Provider>
+    </CountContext.Provider>
+  );
 };
 
 const useCount = () => {
-  const value = React.useContext(Context);
-  return value.count;
+  return React.useContext(CountContext);
 };
 
 const useIncrement = () => {
-  const value = React.useContext(Context);
-  return value.increment;
+  return React.useContext(IncrementContext);
 };
 
 function IncrementButton() {
