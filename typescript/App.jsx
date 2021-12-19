@@ -1,17 +1,14 @@
 import * as React from "react";
-import constate from "constate";
+import { Provider, atom, useAtom } from "jotai";
+import { useUpdateAtom } from "jotai/utils";
 
-function useCounter({ initialCount = 0 } = {}) {
-  const [count, setCount] = React.useState(initialCount);
-  const increment = React.useCallback(() => setCount((c) => c + 1), []);
-  return { count, increment };
+const countAtom = atom(0);
+
+function useIncrement() {
+  const setCount = useUpdateAtom(countAtom);
+  return () => setCount((c) => c + 1);
+  // return React.useCallback(() => setCount((c) => c + 1), []); // メモ化不要
 }
-
-const [CounterProvider, useCount, useIncrement] = constate(
-  useCounter,
-  (value) => value.count,
-  (value) => value.increment
-);
 
 function IncrementButton() {
   console.log("render IncrementButton");
@@ -21,16 +18,16 @@ function IncrementButton() {
 
 function Count() {
   console.log("render Count");
-  const count = useCount();
+  const [count] = useAtom(countAtom);
   return <span>{count}</span>;
 }
 
 function App() {
   return (
-    <CounterProvider initialCount={10}>
+    <Provider initialValues={[[countAtom, 10]]}>
       <Count />
       <IncrementButton />
-    </CounterProvider>
+    </Provider>
   );
 }
 
